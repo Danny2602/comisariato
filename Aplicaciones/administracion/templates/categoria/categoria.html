@@ -1,0 +1,230 @@
+{% extends "plantilla.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title">Lista de Categorías</h4>
+                            <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal" id="addCategoryBtn">
+                                <i class="fa fa-plus"></i>
+                                Añadir Categoría
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="categoria-table" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Portada</th>
+                                        <th>Ruta</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoria-table-body">
+                                    {% include 'categoria/partials/categoria_list.html' %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para añadir/editar categoría -->
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold" id="modalTitle">Nueva</span>
+                    <span class="fw-light">Categoría</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="categoriaForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="categoriaId" name="categoriaId">
+                    <div class="row">
+                    
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre de la categoría" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="descripcion">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="5" placeholder="Descripción de la categoría" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="portada">Portada</label>
+                                <input type="text" class="form-control" id="portada" name="portada" placeholder="URL de la portada" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ruta">Ruta</label>
+                                <input type="text" class="form-control" id="ruta" name="ruta" placeholder="Ruta de la categoría" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Estado</label>
+                                <select class="form-control" id="status" name="status" required>
+                                  <option value="1">Activo</option>
+                                  <option value="0">Desactivo</option>
+                                </select>
+                            </div>
+                        
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold">Confirmar</span>
+                    <span class="fw-light">Eliminación</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar esta categoría?</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sí</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        function showNotification(icon, title, message, type) {
+            $.notify({
+                icon: icon,
+                title: title,
+                message: message,
+            }, {
+                type: type,
+                placement: {
+                    from: "top",
+                    align: "right"
+                },
+                time: 1000,
+            });
+        }
+
+        function loadCategorias() {
+            $.ajax({
+                url: "{% url 'categorias' %}",
+                method: "GET",
+                success: function(data) {
+                    $('#categoria-table-body').html(data.html);
+                    $('#categoria-table').DataTable().destroy();
+                    $('#categoria-table').DataTable();
+                }
+            });
+        }
+
+        loadCategorias();
+
+        $('#addCategoryBtn').on('click', function() {
+            $('#modalTitle').text('Nueva');
+            $('#categoriaForm')[0].reset();
+            $('#categoriaId').val('');
+        });
+
+        $('#categoriaForm').on('submit', function(event) {
+            event.preventDefault();
+            var url = $('#categoriaId').val() ? "{% url 'categoria_update' %}" : "{% url 'categoria_create' %}";
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: $(this).serialize(),
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    $('#categoriaForm')[0].reset();
+                    $('#addRowModal').modal('hide');
+                    loadCategorias();
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        var deleteId;
+        $(document).on('click', '.delete-btn', function() {
+            deleteId = $(this).data('id');
+            $('#confirmDeleteModal').modal('show');
+        });
+
+        $('#confirmDeleteBtn').on('click', function() {
+            $.ajax({
+                url: "{% url 'categoria_delete' %}",
+                method: "POST",
+                data: {
+                    id: deleteId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    loadCategorias();
+                    $('#confirmDeleteModal').modal('hide');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-btn', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: "{% url 'categoria_detail' %}",
+                method: "GET",
+                data: { id: id },
+                success: function(response) {
+                    $('#modalTitle').text('Editar');
+                    $('#categoriaId').val(response.idcategoria);
+                    $('#nombre').val(response.nombre);
+                    $('#descripcion').val(response.descripcion);
+                    $('#portada').val(response.portada);
+                    $('#ruta').val(response.ruta);
+                    $('#status').val(response.status);
+                    $('#addRowModal').modal('show');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $('#categoria-table').DataTable();
+    });
+</script>
+{% endblock %}

@@ -86,8 +86,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'comisariatobdd',
         'USER': 'root',
+        # 'USER': 'bossun',
         'PASSWORD': '2602',
+        # 'PASSWORD': 'Zelda@2602',
         'HOST': 'localhost',  # o la dirección de tu servidor MySQL
+        # 'HOST': '192.168.0.121',  # o la dirección de tu servidor MySQL
         'PORT': '3306',       # el puerto por defecto de MySQL
     }
 }

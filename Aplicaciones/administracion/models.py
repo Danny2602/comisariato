@@ -7,18 +7,19 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
+from django.utils import timezone
 
 class Categoria(models.Model):
     idcategoria = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
     portada = models.CharField(max_length=100)
-    datecreated = models.DateTimeField()
+    datecreated = models.DateTimeField(default=timezone.now)
     ruta = models.CharField(max_length=255)
     status = models.IntegerField()
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'categoria'
 
 
