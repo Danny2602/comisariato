@@ -119,17 +119,39 @@
                 </div>
               </li>
               <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#forms">
+                  <i class="fas fa-pen-square"></i>
+                  <p>Configuracion</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="forms">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{% url 'roles' %}">
+                        <span class="sub-item">Rol</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="{% url 'tipopagos' %}">
+                        <span class="sub-item">Tipo de pago</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
                 <a href="{% url 'productos' %}">
                   <i class="fas fa-desktop"></i>
                   <p>Producto</p>
                   <span class="badge badge-success">4</span>
                 </a>
               </li>
+              
               <li class="nav-item">
-                <a href="{% url 'tipopagos' %}">
-                  <i class="fas fa-desktop"></i>
-                  <p>Tipo de Pago</p>
-                  <span class="badge badge-success">4</span>
+                <a href="{% url 'personas' %}">
+                  <i class="fas fa-file"></i>
+                  <p>Personas</p>
+                  <span class="badge badge-secondary">1</span>
                 </a>
               </li>
               <li class="nav-item">
@@ -148,38 +170,22 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#forms">
-                  <i class="fas fa-pen-square"></i>
-                  <p>Forms</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="forms">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="forms/forms.html">
-                        <span class="sub-item">Basic Form</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
+              
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#tables">
                   <i class="fas fa-table"></i>
-                  <p>Tables</p>
+                  <p>Pedidos</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="tables">
                   <ul class="nav nav-collapse">
-                    <li>
-                      <a href="tables/tables.html">
-                        <span class="sub-item">Basic Table</span>
-                      </a>
+                    <li class="nav-item">
+                      <a href="{% url 'pedidos' %}">
+                        <span class="sub-item">Pedidos</span>                      </a>
                     </li>
                     <li>
-                      <a href="tables/datatables.html">
-                        <span class="sub-item">Datatables</span>
+                      <a href="{% url 'detalle_pedidos' %}">
+                        <span class="sub-item">Detalle de pedidos</span>
                       </a>
                     </li>
                   </ul>
@@ -228,13 +234,7 @@
                 </div>
               </li>
               
-              <li class="nav-item">
-                <a href="../../documentation/index.html">
-                  <i class="fas fa-file"></i>
-                  <p>Documentation</p>
-                  <span class="badge badge-secondary">1</span>
-                </a>
-              </li>
+              
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#submenu">
                   <i class="fas fa-bars"></i>

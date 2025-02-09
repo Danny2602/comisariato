@@ -1,0 +1,21 @@
+{% for persona in personas %}
+<tr>
+  <td>{{ persona.identificacion }}</td>
+  <td>{{ persona.nombres }}</td>
+  <td>{{ persona.apellidos }}</td>
+  <td>{{ persona.telefono }}</td>
+  <td>{{ persona.email_user }}</td>
+  <td>{{ persona.rolid.nombrerol }}</td>
+  <td>{{ persona.status }}</td>
+  <td>
+    <div class="form-button-action">
+      <button type="button" class="btn btn-link btn-primary btn-lg edit-btn" data-id="{{ persona.idpersona }}" data-bs-toggle="tooltip" title="Editar">
+        <i class="fa fa-edit"></i>
+      </button>
+      <button type="button" class="btn btn-link btn-danger delete-btn" data-id="{{ persona.idpersona }}" data-bs-toggle="tooltip" title="Eliminar">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+{% endfor %}

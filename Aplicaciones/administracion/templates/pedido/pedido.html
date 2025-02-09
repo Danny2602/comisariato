@@ -1,0 +1,265 @@
+{% extends "plantilla.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title">Lista de Pedidos</h4>
+                            <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal" id="addPedidoBtn">
+                                <i class="fa fa-plus"></i>
+                                Añadir Pedido
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="pedido-table" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Referencia Cobro</th>
+                                        <th>Transacción PayPal</th>
+                                        <th>Persona</th>
+                                        <th>Fecha</th>
+                                        <th>Costo Envío</th>
+                                        <th>Monto</th>
+                                        <th>Tipo de Pago</th>
+                                        <th>Dirección Envío</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pedido-table-body">
+                                    {% include 'pedido/partials/pedido_list.html' %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para añadir/editar pedido -->
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold" id="modalTitle">Nuevo</span>
+                    <span class="fw-light">Pedido</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="pedidoForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="pedidoId" name="pedidoId">
+                    <div class="row">
+                            <div class="form-group">
+                                <label for="referenciacobro">Referencia Cobro</label>
+                                <input type="text" class="form-control" id="referenciacobro" name="referenciacobro" placeholder="Referencia Cobro">
+                            </div>
+                            <div class="form-group">
+                                <label for="idtransaccionpaypal">Transacción PayPal</label>
+                                <input type="text" class="form-control" id="idtransaccionpaypal" name="idtransaccionpaypal" placeholder="Transacción PayPal">
+                            </div>
+                            <div class="form-group">
+                                <label for="personaid">Persona</label>
+                                <select class="form-control" id="personaid" name="personaid" required>
+                                    {% for persona in personas %}
+                                    <option value="{{ persona.idpersona }}">{{ persona.nombres }} {{ persona.apellidos }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fecha">Fecha</label>
+                                <input type="datetime-local" class="form-control" id="fecha" name="fecha" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="costo_envio">Costo Envío</label>
+                                <input type="number" class="form-control" id="costo_envio" name="costo_envio" placeholder="Costo Envío" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="monto">Monto</label>
+                                <input type="number" class="form-control" id="monto" name="monto" placeholder="Monto" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tipopagoid">Tipo de Pago</label>
+                                <select class="form-control" id="tipopagoid" name="tipopagoid" required>
+                                    {% for tipopago in tipopagos %}
+                                    <option value="{{ tipopago.idtipopago }}">{{ tipopago.tipopago }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="direccion_envio">Dirección Envío</label>
+                                <textarea class="form-control" id="direccion_envio" name="direccion_envio" rows="3" placeholder="Dirección Envío" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Estado</label>
+                                <select class="form-control" id="status" name="status" required>
+                                  <option value="Pendiente">Pendiente</option>
+                                  <option value="Completo">Completo</option>
+                                  <option value="Reembolso">Reembolso</option>
+                                </select>
+                            </div> 
+                            {% comment %} <div class="form-group">
+                                <label for="status">Estado</label>
+                                <input type="text" class="form-control" id="status" name="status" placeholder="Estado">
+                            </div> {% endcomment %}
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold">Confirmar</span>
+                    <span class="fw-light">Eliminación</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este pedido?</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sí</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        function showNotification(icon, title, message, type) {
+            $.notify({
+                icon: icon,
+                title: title,
+                message: message,
+            }, {
+                type: type,
+                placement: {
+                    from: "top",
+                    align: "right"
+                },
+                time: 1000,
+            });
+        }
+
+        function loadPedidos() {
+            $.ajax({
+                url: "{% url 'pedidos' %}",
+                method: "GET",
+                success: function(data) {
+                    $('#pedido-table-body').html(data.html);
+                    $('#pedido-table').DataTable().destroy();
+                    $('#pedido-table').DataTable();
+                }
+            });
+        }
+
+        loadPedidos();
+
+        $('#addPedidoBtn').on('click', function() {
+            $('#modalTitle').text('Nuevo');
+            $('#pedidoForm')[0].reset();
+            $('#pedidoId').val('');
+        });
+
+        $('#pedidoForm').on('submit', function(event) {
+            event.preventDefault();
+            var url = $('#pedidoId').val() ? "{% url 'pedido_update' %}" : "{% url 'pedido_create' %}";
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: $(this).serialize(),
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    $('#pedidoForm')[0].reset();
+                    $('#addRowModal').modal('hide');
+                    loadPedidos();
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        var deleteId;
+        $(document).on('click', '.delete-btn', function() {
+            deleteId = $(this).data('id');
+            $('#confirmDeleteModal').modal('show');
+        });
+
+        $('#confirmDeleteBtn').on('click', function() {
+            $.ajax({
+                url: "{% url 'pedido_delete' %}",
+                method: "POST",
+                data: {
+                    id: deleteId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    loadPedidos();
+                    $('#confirmDeleteModal').modal('hide');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-btn', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: "{% url 'pedido_detail' %}",
+                method: "GET",
+                data: { id: id },
+                success: function(response) {
+                    $('#modalTitle').text('Editar');
+                    $('#pedidoId').val(response.idpedido);
+                    $('#referenciacobro').val(response.referenciacobro);
+                    $('#idtransaccionpaypal').val(response.idtransaccionpaypal);
+                    $('#personaid').val(response.personaid);
+                    $('#fecha').val(response.fecha);
+                    $('#costo_envio').val(response.costo_envio);
+                    $('#monto').val(response.monto);
+                    $('#tipopagoid').val(response.tipopagoid);
+                    $('#direccion_envio').val(response.direccion_envio);
+                    $('#status').val(response.status);
+                    $('#addRowModal').modal('show');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $('#pedido-table').DataTable();
+    });
+</script>
+{% endblock %}

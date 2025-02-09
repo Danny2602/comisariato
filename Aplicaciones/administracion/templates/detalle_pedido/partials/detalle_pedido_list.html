@@ -1,0 +1,18 @@
+{% for detalle_pedido in detalle_pedidos %}
+<tr>
+  <td>{{ detalle_pedido.pedidoid.referenciacobro }}</td>
+  <td>{{ detalle_pedido.productoid.nombre }}</td>
+  <td>{{ detalle_pedido.precio }}</td>
+  <td>{{ detalle_pedido.cantidad }}</td>
+  <td>
+    <div class="form-button-action">
+      <button type="button" class="btn btn-link btn-primary btn-lg edit-btn" data-id="{{ detalle_pedido.id }}" data-bs-toggle="tooltip" title="Editar">
+        <i class="fa fa-edit"></i>
+      </button>
+      <button type="button" class="btn btn-link btn-danger delete-btn" data-id="{{ detalle_pedido.id }}" data-bs-toggle="tooltip" title="Eliminar">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+{% endfor %}

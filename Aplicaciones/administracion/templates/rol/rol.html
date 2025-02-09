@@ -1,0 +1,220 @@
+{% extends "plantilla.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title">Lista de Roles</h4>
+                            <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal" id="addRolBtn">
+                                <i class="fa fa-plus"></i>
+                                Añadir Rol
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="rol-table" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre del Rol</th>
+                                        <th>Descripción</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rol-table-body">
+                                    {% include 'rol/partials/rol_list.html' %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para añadir/editar rol -->
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold" id="modalTitle">Nuevo</span>
+                    <span class="fw-light">Rol</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="rolForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="rolId" name="rolId">
+                    <div class="row">
+                            <div class="form-group">
+                                <label for="nombrerol">Nombre del Rol</label>
+                                <input type="text" class="form-control" id="nombrerol" name="nombrerol" placeholder="Nombre del Rol" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="descripcion">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="5" placeholder="Descripción del Rol" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="ruta">Estado</label>
+                                <input type="number" class="form-control" id="status" name="status" placeholder="Estado" required>
+                            </div>
+                            {% comment %} <div class="form-group">
+                                <label for="status">Estado</label>
+                                <select class="form-control" id="status" name="status" required>
+                                  <option value="1">Activo</option>
+                                  <option value="0">Desactivo</option>
+                                </select>
+                            </div> {% endcomment %}
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold">Confirmar</span>
+                    <span class="fw-light">Eliminación</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este rol?</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sí</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        function showNotification(icon, title, message, type) {
+            $.notify({
+                icon: icon,
+                title: title,
+                message: message,
+            }, {
+                type: type,
+                placement: {
+                    from: "top",
+                    align: "right"
+                },
+                time: 1000,
+            });
+        }
+
+        function loadRoles() {
+            $.ajax({
+                url: "{% url 'roles' %}",
+                method: "GET",
+                success: function(data) {
+                    $('#rol-table-body').html(data.html);
+                    $('#rol-table').DataTable().destroy();
+                    $('#rol-table').DataTable();
+                }
+            });
+        }
+
+        loadRoles();
+
+        $('#addRolBtn').on('click', function() {
+            $('#modalTitle').text('Nuevo');
+            $('#rolForm')[0].reset();
+            $('#rolId').val('');
+        });
+
+        $('#rolForm').on('submit', function(event) {
+            event.preventDefault();
+            var url = $('#rolId').val() ? "{% url 'rol_update' %}" : "{% url 'rol_create' %}";
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: $(this).serialize(),
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    $('#rolForm')[0].reset();
+                    $('#addRowModal').modal('hide');
+                    loadRoles();
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        var deleteId;
+        $(document).on('click', '.delete-btn', function() {
+            deleteId = $(this).data('id');
+            $('#confirmDeleteModal').modal('show');
+        });
+
+        $('#confirmDeleteBtn').on('click', function() {
+            $.ajax({
+                url: "{% url 'rol_delete' %}",
+                method: "POST",
+                data: {
+                    id: deleteId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    loadRoles();
+                    $('#confirmDeleteModal').modal('hide');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-btn', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: "{% url 'rol_detail' %}",
+                method: "GET",
+                data: { id: id },
+                success: function(response) {
+                    $('#modalTitle').text('Editar');
+                    $('#rolId').val(response.idrol);
+                    $('#nombrerol').val(response.nombrerol);
+                    $('#descripcion').val(response.descripcion);
+                    $('#status').val(response.status);
+                    $('#addRowModal').modal('show');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $('#rol-table').DataTable();
+    });
+</script>
+{% endblock %}

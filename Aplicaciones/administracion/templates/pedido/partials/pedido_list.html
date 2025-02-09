@@ -1,0 +1,23 @@
+{% for pedido in pedidos %}
+<tr>
+  <td>{{ pedido.referenciacobro }}</td>
+  <td>{{ pedido.idtransaccionpaypal }}</td>
+  <td>{{ pedido.personaid.nombres }} {{ pedido.personaid.apellidos }}</td>
+  <td>{{ pedido.fecha }}</td>
+  <td>{{ pedido.costo_envio }}</td>
+  <td>{{ pedido.monto }}</td>
+  <td>{{ pedido.tipopagoid.tipopago }}</td>
+  <td>{{ pedido.direccion_envio }}</td>
+  <td>{{ pedido.status }}</td>
+  <td>
+    <div class="form-button-action">
+      <button type="button" class="btn btn-link btn-primary btn-lg edit-btn" data-id="{{ pedido.idpedido }}" data-bs-toggle="tooltip" title="Editar">
+        <i class="fa fa-edit"></i>
+      </button>
+      <button type="button" class="btn btn-link btn-danger delete-btn" data-id="{{ pedido.idpedido }}" data-bs-toggle="tooltip" title="Eliminar">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+{% endfor %}

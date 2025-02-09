@@ -19,7 +19,7 @@ class Categoria(models.Model):
     status = models.IntegerField()
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = 'categoria'
 
 
@@ -129,7 +129,7 @@ class Persona(models.Model):
     direccionfiscal = models.CharField(max_length=100, blank=True, null=True)
     token = models.CharField(max_length=100, blank=True, null=True)
     rolid = models.ForeignKey('Rol', models.DO_NOTHING, db_column='rolid')
-    datecreated = models.DateTimeField()
+    datecreated = models.DateTimeField(default=timezone.now)
     status = models.IntegerField()
 
     class Meta:
@@ -165,7 +165,7 @@ class Producto(models.Model):
     status = models.IntegerField()
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = 'producto'
 
 

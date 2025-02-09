@@ -1,0 +1,17 @@
+{% for rol in roles %}
+<tr>
+  <td>{{ rol.nombrerol }}</td>
+  <td>{{ rol.descripcion }}</td>
+  <td>{{ rol.status }}</td>
+  <td>
+    <div class="form-button-action">
+      <button type="button" class="btn btn-link btn-primary btn-lg edit-btn" data-id="{{ rol.idrol }}" data-bs-toggle="tooltip" title="Editar">
+        <i class="fa fa-edit"></i>
+      </button>
+      <button type="button" class="btn btn-link btn-danger delete-btn" data-id="{{ rol.idrol }}" data-bs-toggle="tooltip" title="Eliminar">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,269 @@
+{% extends "plantilla.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title">Lista de Personas</h4>
+                            <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal" id="addPersonaBtn">
+                                <i class="fa fa-plus"></i>
+                                Añadir Persona
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="persona-table" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Identificación</th>
+                                        <th>Nombres</th>
+                                        <th>Apellidos</th>
+                                        <th>Teléfono</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="persona-table-body">
+                                    {% include 'persona/partials/persona_list.html' %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para añadir/editar persona -->
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold" id="modalTitle">Nueva</span>
+                    <span class="fw-light">Persona</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="personaForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="personaId" name="personaId">
+                    <div class="row">
+                            <div class="form-group">
+                                <label for="identificacion">Identificación</label>
+                                <input type="text" class="form-control" id="identificacion" name="identificacion" placeholder="Identificación">
+                            </div>
+                            <div class="form-group">
+                                <label for="nombres">Nombres</label>
+                                <input type="text" class="form-control" id="nombres" name="nombres" placeholder="Nombres" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="apellidos">Apellidos</label>
+                                <input type="text" class="form-control" id="apellidos" name="apellidos" placeholder="Apellidos" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono">Teléfono</label>
+                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email_user">Email</label>
+                                <input type="email" class="form-control" id="email_user" name="email_user" placeholder="Email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Contraseña</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nit">NIT</label>
+                                <input type="text" class="form-control" id="nit" name="nit" placeholder="NIT">
+                            </div>
+                            <div class="form-group">
+                                <label for="nombrefiscal">Nombre Fiscal</label>
+                                <input type="text" class="form-control" id="nombrefiscal" name="nombrefiscal" placeholder="Nombre Fiscal">
+                            </div>
+                            <div class="form-group">
+                                <label for="direccionfiscal">Dirección Fiscal</label>
+                                <input type="text" class="form-control" id="direccionfiscal" name="direccionfiscal" placeholder="Dirección Fiscal">
+                            </div>
+                            <div class="form-group">
+                                <label for="token">Token</label>
+                                <input type="text" class="form-control" id="token" name="token" placeholder="Token">
+                            </div>
+                            <div class="form-group">
+                                <label for="rolid">Rol</label>
+                                <select class="form-control" id="rolid" name="rolid" required>
+                                    {% for rol in roles %}
+                                    <option value="{{ rol.idrol }}">{{ rol.nombrerol }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Estado</label>
+                                <select class="form-control" id="status" name="status" required>
+                                  <option value="1">Activo</option>
+                                  <option value="0">Desactivo</option>
+                                </select>
+                            </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold">Confirmar</span>
+                    <span class="fw-light">Eliminación</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar esta persona?</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sí</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        function showNotification(icon, title, message, type) {
+            $.notify({
+                icon: icon,
+                title: title,
+                message: message,
+            }, {
+                type: type,
+                placement: {
+                    from: "top",
+                    align: "right"
+                },
+                time: 1000,
+            });
+        }
+
+        function loadPersonas() {
+            $.ajax({
+                url: "{% url 'personas' %}",
+                method: "GET",
+                success: function(data) {
+                    $('#persona-table-body').html(data.html);
+                    $('#persona-table').DataTable().destroy();
+                    $('#persona-table').DataTable();
+                }
+            });
+        }
+
+        loadPersonas();
+
+        $('#addPersonaBtn').on('click', function() {
+            $('#modalTitle').text('Nueva');
+            $('#personaForm')[0].reset();
+            $('#personaId').val('');
+        });
+
+        $('#personaForm').on('submit', function(event) {
+            event.preventDefault();
+            var url = $('#personaId').val() ? "{% url 'persona_update' %}" : "{% url 'persona_create' %}";
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: $(this).serialize(),
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    $('#personaForm')[0].reset();
+                    $('#addRowModal').modal('hide');
+                    loadPersonas();
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        var deleteId;
+        $(document).on('click', '.delete-btn', function() {
+            deleteId = $(this).data('id');
+            $('#confirmDeleteModal').modal('show');
+        });
+
+        $('#confirmDeleteBtn').on('click', function() {
+            $.ajax({
+                url: "{% url 'persona_delete' %}",
+                method: "POST",
+                data: {
+                    id: deleteId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    loadPersonas();
+                    $('#confirmDeleteModal').modal('hide');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-btn', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: "{% url 'persona_detail' %}",
+                method: "GET",
+                data: { id: id },
+                success: function(response) {
+                    $('#modalTitle').text('Editar');
+                    $('#personaId').val(response.idpersona);
+                    $('#identificacion').val(response.identificacion);
+                    $('#nombres').val(response.nombres);
+                    $('#apellidos').val(response.apellidos);
+                    $('#telefono').val(response.telefono);
+                    $('#email_user').val(response.email_user);
+                    $('#password').val(response.password);
+                    $('#nit').val(response.nit);
+                    $('#nombrefiscal').val(response.nombrefiscal);
+                    $('#direccionfiscal').val(response.direccionfiscal);
+                    $('#token').val(response.token);
+                    $('#rolid').val(response.rolid);
+                    $('#status').val(response.status);
+                    $('#addRowModal').modal('show');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $('#persona-table').DataTable();
+    });
+</script>
+{% endblock %}
