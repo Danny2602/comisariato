@@ -66,7 +66,7 @@ class DetalleTemp(models.Model):
 class Imagen(models.Model):
     id = models.BigAutoField(primary_key=True)
     productoid = models.ForeignKey('Producto', models.DO_NOTHING, db_column='productoid', related_name='imagenes')
-    img = models.CharField(max_length=100)
+    img = models.ImageField(upload_to='imagenes/')
 
     class Meta:
         managed = False
@@ -160,12 +160,12 @@ class Producto(models.Model):
     precio = models.DecimalField(max_digits=11, decimal_places=2)
     stock = models.IntegerField()
     imagen = models.CharField(max_length=100, blank=True, null=True)
-    datecreated = models.DateTimeField()
+    datecreated = models.DateTimeField(default=timezone.now)
     ruta = models.CharField(max_length=255)
     status = models.IntegerField()
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'producto'
 
 

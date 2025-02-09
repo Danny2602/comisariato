@@ -1,0 +1,16 @@
+{% for tipopago in tipopagos %}
+<tr>
+  <td>{{ tipopago.tipopago }}</td>
+  <td>{{ tipopago.status }}</td>
+  <td>
+    <div class="form-button-action">
+      <button type="button" class="btn btn-link btn-primary btn-lg edit-btn" data-id="{{ tipopago.idtipopago }}" data-bs-toggle="tooltip" title="Editar">
+        <i class="fa fa-edit"></i>
+      </button>
+      <button type="button" class="btn btn-link btn-danger delete-btn" data-id="{{ tipopago.idtipopago }}" data-bs-toggle="tooltip" title="Eliminar">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+{% endfor %}

@@ -119,21 +119,30 @@
                 </div>
               </li>
               <li class="nav-item">
+                <a href="{% url 'productos' %}">
+                  <i class="fas fa-desktop"></i>
+                  <p>Producto</p>
+                  <span class="badge badge-success">4</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'tipopagos' %}">
+                  <i class="fas fa-desktop"></i>
+                  <p>Tipo de Pago</p>
+                  <span class="badge badge-success">4</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#sidebarLayouts">
                   <i class="fas fa-th-list"></i>
-                  <p>Sidebar Layouts</p>
+                  <p>Imagenes Productos</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="sidebarLayouts">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="sidebar-style-2.html">
-                        <span class="sub-item">Sidebar Style 2</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="icon-menu.html">
-                        <span class="sub-item">Icon Menu</span>
+                      <a href="{% url 'imagenes' %}">
+                        <span class="sub-item">Imagenes</span>
                       </a>
                     </li>
                   </ul>
@@ -218,13 +227,7 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
-                <a href="widgets.html">
-                  <i class="fas fa-desktop"></i>
-                  <p>Widgets</p>
-                  <span class="badge badge-success">4</span>
-                </a>
-              </li>
+              
               <li class="nav-item">
                 <a href="../../documentation/index.html">
                   <i class="fas fa-file"></i>

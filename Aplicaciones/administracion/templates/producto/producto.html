@@ -1,0 +1,252 @@
+{% extends "plantilla.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title">Lista de Productos</h4>
+                            <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal" id="addProductBtn">
+                                <i class="fa fa-plus"></i>
+                                Añadir Producto
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="producto-table" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="producto-table-body">
+                                    {% include 'producto/partials/producto_list.html' %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para añadir/editar producto -->
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold" id="modalTitle">Nuevo</span>
+                    <span class="fw-light">Producto</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="productoForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="productoId" name="productoId">
+                    <div class="row">
+                            <div class="form-group">
+                                <label for="categoriaid">Categoría</label>
+                                <select class="form-control" id="categoriaid" name="categoriaid" required>
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria.idcategoria }}">{{ categoria.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="codigo">Código</label>
+                                <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Código del producto" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del producto" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="descripcion">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="5" placeholder="Descripción del producto" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="precio">Precio</label>
+                                <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio del producto" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="stock">Stock</label>
+                                <input type="number" class="form-control" id="stock" name="stock" placeholder="Stock del producto" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="imagen">Imagen</label>
+                                <input type="text" class="form-control" id="imagen" name="imagen" placeholder="URL de la imagen" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ruta">Ruta</label>
+                                <input type="text" class="form-control" id="ruta" name="ruta" placeholder="Ruta del producto" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Estado</label>
+                                <select class="form-control" id="status" name="status" required>
+                                  <option value="1">Activo</option>
+                                  <option value="0">Desactivo</option>
+                                </select>
+                            </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <span class="fw-mediumbold">Confirmar</span>
+                    <span class="fw-light">Eliminación</span>
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este producto?</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sí</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        function showNotification(icon, title, message, type) {
+            $.notify({
+                icon: icon,
+                title: title,
+                message: message,
+            }, {
+                type: type,
+                placement: {
+                    from: "top",
+                    align: "right"
+                },
+                time: 1000,
+            });
+        }
+
+        function loadProductos() {
+            $.ajax({
+                url: "{% url 'productos' %}",
+                method: "GET",
+                success: function(data) {
+                    $('#producto-table-body').html(data.html);
+                    $('#producto-table').DataTable().destroy();
+                    $('#producto-table').DataTable();
+                }
+            });
+        }
+
+        loadProductos();
+
+        $('#addProductBtn').on('click', function() {
+            $('#modalTitle').text('Nuevo');
+            $('#productoForm')[0].reset();
+            $('#productoId').val('');
+        });
+
+        $('#productoForm').on('submit', function(event) {
+            event.preventDefault();
+            var url = $('#productoId').val() ? "{% url 'producto_update' %}" : "{% url 'producto_create' %}";
+            $.ajax({
+                url: url,
+                method: "POST",
+                data: $(this).serialize(),
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    $('#productoForm')[0].reset();
+                    $('#addRowModal').modal('hide');
+                    loadProductos();
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        var deleteId;
+        $(document).on('click', '.delete-btn', function() {
+            deleteId = $(this).data('id');
+            $('#confirmDeleteModal').modal('show');
+        });
+
+        $('#confirmDeleteBtn').on('click', function() {
+            $.ajax({
+                url: "{% url 'producto_delete' %}",
+                method: "POST",
+                data: {
+                    id: deleteId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    showNotification('fa fa-check', response.title, response.message, response.type);
+                    loadProductos();
+                    $('#confirmDeleteModal').modal('hide');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $(document).on('click', '.edit-btn', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: "{% url 'producto_detail' %}",
+                method: "GET",
+                data: { id: id },
+                success: function(response) {
+                    $('#modalTitle').text('Editar');
+                    $('#productoId').val(response.idproducto);
+                    $('#categoriaid').val(response.categoriaid);
+                    $('#codigo').val(response.codigo);
+                    $('#nombre').val(response.nombre);
+                    $('#descripcion').val(response.descripcion);
+                    $('#precio').val(response.precio);
+                    $('#stock').val(response.stock);
+                    $('#imagen').val(response.imagen);
+                    $('#ruta').val(response.ruta);
+                    $('#status').val(response.status);
+                    $('#addRowModal').modal('show');
+                },
+                error: function(xhr, errmsg, err) {
+                    var response = JSON.parse(xhr.responseText);
+                    showNotification('fa fa-times', response.title, response.message, response.type);
+                }
+            });
+        });
+
+        $('#producto-table').DataTable();
+    });
+</script>
+{% endblock %}
